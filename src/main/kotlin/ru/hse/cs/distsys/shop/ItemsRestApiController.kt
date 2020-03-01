@@ -26,8 +26,8 @@ class ItemsRestApiController(val repository: ItemsRepository) {
     }
 
     @GetMapping("/get_list")
-    fun getItemsList(): List<Item> {
-        return repository.getItemsList()
+    fun getItemsList(@RequestParam offset: Int, @RequestParam length: Int): List<Item> {
+        return repository.getItemsList(offset, length)
     }
 }
 

@@ -5,7 +5,7 @@ interface ItemsRepository {
     fun deleteItem(id: Long)
     fun getItem(id: Long): Item?
     fun updateItem(item: Item)
-    fun getItemsList(): List<Item>
+    fun getItemsList(offset: Int, length: Int): List<Item>
 }
 
 class ListItemsRepository : ItemsRepository {
@@ -35,8 +35,8 @@ class ListItemsRepository : ItemsRepository {
     }
 
     @Synchronized
-    override fun getItemsList(): List<Item> {
-        return items.values.toList()
+    override fun getItemsList(offset: Int, length: Int): List<Item> {
+        return items.values.drop(offset).take(length)
     }
 
 }

@@ -25,6 +25,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
+	implementation("io.springfox:springfox-swagger2:2.9.2")
 }
 
 tasks.withType<Test> {
