@@ -1,15 +1,6 @@
 package ru.hse.cs.distsys.shop
 
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-interface ItemsRepository {
-    fun addItem(name: String, category: String): Long
-    fun deleteItem(id: Long)
-    fun getItem(id: Long): Item?
-    fun updateItem(item: Item)
-    fun getItemsList(offset: Int, length: Int): List<Item>
-}
 
 class ListItemsRepository : ItemsRepository {
     private val items = mutableMapOf<Long, Item>()

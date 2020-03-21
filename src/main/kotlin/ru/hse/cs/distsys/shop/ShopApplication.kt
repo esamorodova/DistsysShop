@@ -12,8 +12,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 @EnableSwagger2
 @SpringBootApplication
 class ShopApplication {
-	@Bean
-	fun itemsRepository(): ItemsRepository = ListItemsRepository()
 
 	@Bean
 	fun api(): Docket =
