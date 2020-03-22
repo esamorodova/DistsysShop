@@ -42,7 +42,7 @@ class JPAItemsRepository(private val itemsRepository: ItemEntityRepository) : It
 
     @Transactional
     @Throws(Exception::class)
-    override fun getItemsList(offset: Int, length: Int): List<Item> {
-        return itemsRepository.findAll(PageRequest.of(offset / pageSize, length)).map { it.toItem()}.toList()
+    override fun getItemsList(page: Int, length: Int): List<Item> {
+        return itemsRepository.findAll(PageRequest.of(page, length)).map { it.toItem()}.toList()
     }
 }

@@ -5,5 +5,5 @@ interface ItemsRepository {
     fun deleteItem(id: Long)
     fun getItem(id: Long): Item?
     fun updateItem(item: Item)
-    fun getItemsList(offset: Int, length: Int): List<Item>
+    fun getItemsList(page: Int, length: Int): List<Item>
 }

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 class ListItemsRepository : ItemsRepository {
     private val items = mutableMapOf<Long, Item>()
     private var itemsCnt = 0L
+    private val pageSize = 30
 
     companion object {
         private val logger = LoggerFactory.getLogger(ListItemsRepository::class.java)
@@ -36,8 +37,8 @@ class ListItemsRepository : ItemsRepository {
     }
 
     @Synchronized
-    override fun getItemsList(offset: Int, length: Int): List<Item> {
-        return items.values.drop(offset).take(length)
+    override fun getItemsList(page: Int, length: Int): List<Item> {
+        return items.values.drop(page * pageSize).take(length)
     }
 
 }
