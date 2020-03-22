@@ -1,14 +1,11 @@
 package ru.hse.cs.distsys.shop
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
 
 @Entity
 @Table(name = "items")
 class ItemEntity(
-        @GeneratedValue @Id var id: Long? = null,
+        @GeneratedValue(strategy = GenerationType.IDENTITY) @Id var id: Long? = null,
         var name: String,
         var category: String
 )
