@@ -1,4 +1,4 @@
-package ru.hse.cs.distsys.shop
+package ru.hse.cs.distsys
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -11,7 +11,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 @EnableSwagger2
 @SpringBootApplication
-class ShopApplication {
+class Application {
 
 	@Bean
 	fun api(): Docket =
@@ -24,5 +24,5 @@ class ShopApplication {
 }
 
 fun main(args: Array<String>) {
-	runApplication<ShopApplication>(*args)
+	runApplication<Application>(*args)
 }

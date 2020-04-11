@@ -41,4 +41,8 @@ class ListItemsRepository : ItemsRepository {
         return items.values.drop(page * pageSize).take(length)
     }
 
+    @Synchronized
+    override fun getItemsCount(): Long {
+        return items.count().toLong()
+    }
 }
