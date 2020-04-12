@@ -17,9 +17,9 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
     private fun generateTokens(email: String): AuthorizationService.Tokens {
         val bytes = ByteArray(tokenLength)
         secureRandom.nextBytes(bytes)
-        val accessToken = encoder.encode(bytes).toString() + ";" + email
+        val accessToken = encoder.encodeToString(bytes) + ";" + email
         secureRandom.nextBytes(bytes)
-        val refreshToken = encoder.encode(bytes).toString()
+        val refreshToken = encoder.encodeToString(bytes)
         return AuthorizationService.Tokens(accessToken, refreshToken)
     }
 

@@ -8,8 +8,8 @@ import javax.persistence.*
 class UserEntity(
         @Id var email: String,
         var password: String, // АККУРАТНО?!?!
-        var refreshToken: String? = null,
-        var refreshTokenElapsedAt: Instant? = null,
-        var accessToken: String? = null,
-        var accessTokenElapsedAt: Instant? = null
+        @Column(name="refreshtoken") var refreshToken: String? = null,
+        @Column(name="refreshtokenelapsedat") var refreshTokenElapsedAt: Instant? = null,
+        @Column(name="accesstoken") var accessToken: String? = null,
+        @Column(name="accesstokenelapsedat") var accessTokenElapsedAt: Instant? = null
 )

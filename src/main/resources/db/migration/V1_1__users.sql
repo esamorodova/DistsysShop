@@ -1,8 +1,9 @@
 CREATE TABLE users (
-    email SERIAL VARCHAR NOT NULL,
+    email VARCHAR NOT NULL,
     password VARCHAR NOT NULL,
     refreshToken VARCHAR,
     refreshTokenElapsedAt TIMESTAMP,
     accessToken VARCHAR,
-    accessTokenElapsedAt TIMESTAMP
+    accessTokenElapsedAt TIMESTAMP,
+    PRIMARY KEY (email)
 );

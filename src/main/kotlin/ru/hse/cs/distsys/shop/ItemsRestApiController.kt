@@ -21,7 +21,7 @@ class ItemsRestApiController(val repository: ItemsRepository, val authService: A
             return false
         }
         val (token, email) = splitToken
-        return authService.validate(email, token)
+        return authService.validate(email, tokenParts)
     }
 
 
