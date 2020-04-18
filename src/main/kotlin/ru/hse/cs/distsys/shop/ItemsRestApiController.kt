@@ -2,6 +2,8 @@ package ru.hse.cs.distsys.shop
 
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.*
+import ru.hse.cs.distsys.AuthorizationError
+import ru.hse.cs.distsys.NotFoundException
 import ru.hse.cs.distsys.auth.AuthServiceImpl
 import ru.hse.cs.distsys.auth.AuthenticationService
 
@@ -26,13 +28,15 @@ class ItemsRestApiController(val repository: ItemsRepository, val authService: A
 
 
     @GetMapping("/{id}")
-    fun getItem(@PathVariable id: Long): Item? = repository.getItem(id)
+    fun getItem(@PathVariable id: Long): Item {
+        return repository.getItem(id) ?: throw NotFoundException("item not found")
+    }
 
     @PostMapping
     fun addNewItem(@RequestParam name: String, @RequestParam category: String,
                    @RequestHeader("authorization") token: String): Long {
         if (!checkToken(token)) {
-            throw Exception("no access")
+            throw AuthorizationError("no access")
         }
         return repository.addItem(name, category)
     }

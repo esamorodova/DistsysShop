@@ -3,6 +3,7 @@ package ru.hse.cs.distsys.auth
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import ru.hse.cs.distsys.AuthorizationError
 import java.lang.Exception
 import java.security.SecureRandom
 import java.time.Duration
@@ -28,7 +29,7 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
     override fun login(email: String, password: String): AuthorizationService.Tokens {
         val user = repository.findByIdOrNull(email)
         if (user == null || user.password != password) { // что-то пошло не так
-            throw Exception("login error")
+            throw AuthorizationError("login error")
         }
         val tokens = generateTokens(email)
         user.accessToken = tokens.accessToken
@@ -42,10 +43,10 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
     override fun logout(email: String, token: String) {
         val user = repository.findByIdOrNull(email)
         if (user == null || user.refreshToken != token) {
-            throw Exception("logout error")
+            throw AuthorizationError("logout error")
         }
         if (user.refreshTokenElapsedAt!!.isBefore(Instant.now())) {
-            throw Exception("refresh token elapsed")
+            throw AuthorizationError("refresh token elapsed")
         }
         user.accessToken = null;
         user.refreshToken = null;
@@ -56,7 +57,7 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
     @Throws(Exception::class)
     override fun register(email: String, password: String) {
         if (repository.findByIdOrNull(email) != null) { // пользователь уже есть
-            throw Exception("this email is already used")
+            throw AuthorizationError("this email is already used")
         }
         val newUser = UserEntity(email, password)
         repository.save(newUser)
@@ -67,10 +68,10 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
     override fun refresh(email: String, token: String): AuthorizationService.Tokens {
         val user = repository.findByIdOrNull(email)
         if (user == null || user.refreshToken != token) { // нет пользователя
-            throw Exception("refresh token error")
+            throw AuthorizationError("refresh token error")
         }
         if (user.refreshTokenElapsedAt!!.isBefore(Instant.now())) {
-            throw Exception("refresh token elapsed")
+            throw AuthorizationError("refresh token elapsed")
         }
         val newTokens = generateTokens(email)
         user.refreshToken = newTokens.refreshToken
