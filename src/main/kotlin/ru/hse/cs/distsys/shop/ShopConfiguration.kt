@@ -16,5 +16,6 @@ class ShopConfiguration {
 
     @Bean
     fun authService(restTemplate: RestTemplate,
-                    @Value("\${KATE.AUTH.BASEURL}") baseUrl: String): AuthenticationService = AuthClientImpl(restTemplate, baseUrl)
+                    @Value("\${kate.auth.baseurl}") baseUrl: String):
+                    AuthenticationService = AuthClientImpl(restTemplate, baseUrl)
 }

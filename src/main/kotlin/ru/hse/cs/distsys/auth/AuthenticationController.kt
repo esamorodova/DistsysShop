@@ -32,4 +32,9 @@ class AuthenticationController(val authenticationService: AuthenticationService,
     fun validate(@RequestParam email: String, @RequestParam accessToken: String): Boolean {
         return authenticationService.validate(email, accessToken)
     }
+
+    @GetMapping("/confirm")
+    fun confirmEmail(@RequestParam email: String, @RequestParam accessToken: String) {
+        authorizationService.confirmEmail(email, accessToken)
+    }
 }

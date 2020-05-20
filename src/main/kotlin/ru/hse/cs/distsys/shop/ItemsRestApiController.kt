@@ -6,11 +6,12 @@ import ru.hse.cs.distsys.AuthorizationError
 import ru.hse.cs.distsys.NotFoundException
 import ru.hse.cs.distsys.auth.AuthServiceImpl
 import ru.hse.cs.distsys.auth.AuthenticationService
+import ru.hse.cs.distsys.auth.AuthorizationService
 
 @RestController
 @RequestMapping("/api/items")
 @Profile("shop")
-class ItemsRestApiController(val repository: ItemsRepository, val authService: AuthServiceImpl) {
+class ItemsRestApiController(val repository: ItemsRepository, val authService: AuthenticationService) {
     data class ListResult(val count: Long, val items: List<Item>)
 
     private fun checkToken(tokenString: String): Boolean {
@@ -23,6 +24,7 @@ class ItemsRestApiController(val repository: ItemsRepository, val authService: A
             return false
         }
         val (token, email) = splitToken
+        println("$tokenParts $email")
         return authService.validate(email, tokenParts)
     }
 
@@ -43,12 +45,18 @@ class ItemsRestApiController(val repository: ItemsRepository, val authService: A
 
     @DeleteMapping("/{id}")
     fun deleteItem(@PathVariable id: Long, @RequestHeader("authorization") token: String) {
+        if (!checkToken(token)) {
+            throw AuthorizationError("no access")
+        }
         repository.deleteItem(id)
     }
 
     @PutMapping("/{id}")
     fun updateItem(@PathVariable id: Long, @RequestParam name: String, @RequestParam category: String,
                    @RequestHeader("authorization") token: String) {
+        if (!checkToken(token)) {
+            throw AuthorizationError("no access")
+        }
         val newItem = Item(id, name, category)
         repository.updateItem(newItem)
     }

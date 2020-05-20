@@ -1,9 +1,13 @@
 package ru.hse.cs.distsys.auth
 
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Profile
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.util.UriComponentsBuilder
 import ru.hse.cs.distsys.AuthorizationError
+import ru.hse.cs.distsys.email.SendEmailInterface
 import java.lang.Exception
 import java.security.SecureRandom
 import java.time.Duration
@@ -11,9 +15,11 @@ import java.time.Instant
 import java.util.*
 
 @Service
-class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationService, AuthenticationService {
+@Profile("auth")
+class AuthServiceImpl(val repository: UserEntityRepository, val emailSender: SendEmailInterface) : AuthorizationService, AuthenticationService {
     private val secureRandom = SecureRandom()
     private val encoder = Base64.getUrlEncoder()
+    @Value("\${kate.auth.baseurl}") lateinit var selfBaseUrl: String
 
     private fun generateTokens(email: String): AuthorizationService.Tokens {
         val bytes = ByteArray(tokenLength)
@@ -24,11 +30,17 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
         return AuthorizationService.Tokens(accessToken, refreshToken)
     }
 
+    private fun generateOneToken(): String {
+        val bytes = ByteArray(tokenLength)
+        secureRandom.nextBytes(bytes)
+        return encoder.encodeToString(bytes)
+    }
+
     @Transactional
     @Throws(Exception::class)
     override fun login(email: String, password: String): AuthorizationService.Tokens {
         val user = repository.findByIdOrNull(email)
-        if (user == null || user.password != password) { // что-то пошло не так
+        if (user == null || user.password != password || !user.emailConfirmed) { // что-то пошло не так
             throw AuthorizationError("login error")
         }
         val tokens = generateTokens(email)
@@ -42,7 +54,7 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
 
     override fun logout(email: String, token: String) {
         val user = repository.findByIdOrNull(email)
-        if (user == null || user.refreshToken != token) {
+        if (user == null || user.refreshToken != token || !user.emailConfirmed) {
             throw AuthorizationError("logout error")
         }
         if (user.refreshTokenElapsedAt!!.isBefore(Instant.now())) {
@@ -59,7 +71,13 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
         if (repository.findByIdOrNull(email) != null) { // пользователь уже есть
             throw AuthorizationError("this email is already used")
         }
+        val emailToken = generateOneToken()
+        val confirmUrl = UriComponentsBuilder.fromHttpUrl(selfBaseUrl).path("/api/auth/confirm")
+                .queryParam("email", email).queryParam("accessToken", emailToken).toUriString()
+        emailSender.sendMail(email, "email confirm", confirmUrl)
+
         val newUser = UserEntity(email, password)
+        newUser.emailConfirmToken = emailToken
         repository.save(newUser)
     }
 
@@ -67,7 +85,7 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
     @Throws(Exception::class)
     override fun refresh(email: String, token: String): AuthorizationService.Tokens {
         val user = repository.findByIdOrNull(email)
-        if (user == null || user.refreshToken != token) { // нет пользователя
+        if (user == null || !user.emailConfirmed || user.refreshToken != token) { // нет пользователя
             throw AuthorizationError("refresh token error")
         }
         if (user.refreshTokenElapsedAt!!.isBefore(Instant.now())) {
@@ -84,9 +102,26 @@ class AuthServiceImpl(val repository: UserEntityRepository) : AuthorizationServi
 
     @Transactional
     @Throws(Exception::class)
-    override fun validate(email: String, token: String): Boolean { // а у какого, простите, юзера??
+    override fun validate(email: String, token: String): Boolean {
+        val user = repository.findByIdOrNull(email) /*?: return false
+        //println("correct token: " + user.accessToken + ", my token: " + token)
+        //println("email confirmed: " + user.emailConfirmed)
+        //println("tokens equal: " + user.accessToken == token)
+        //println("validate ans: " + !(!user.emailConfirmed || user.accessToken != token || user.accessTokenElapsedAt!!.isBefore(Instant.now())))
+        */
+        return !(user == null || !user.emailConfirmed || user.accessToken != token || user.accessTokenElapsedAt!!.isBefore(Instant.now()))
+    }
+
+    @Transactional
+    @Throws(Exception::class)
+    override fun confirmEmail(email: String, token: String) {
         val user = repository.findByIdOrNull(email)
-        return !(user == null || user.accessToken != token || user.accessTokenElapsedAt!!.isBefore(Instant.now()))
+        if (user == null || user.emailConfirmToken != token) {
+            throw AuthorizationError("confirm email error")
+        }
+        user.emailConfirmed = true
+        user.emailConfirmToken = null
+        repository.save(user)
     }
 
     companion object{

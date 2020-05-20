@@ -18,6 +18,8 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-mail")
+	implementation("org.springframework.boot:spring-boot-starter-activemq")
 	runtimeOnly("org.postgresql:postgresql:42.2.11")
 	runtimeOnly("org.flywaydb:flyway-core:6.3.1")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -30,6 +32,7 @@ dependencies {
 	implementation("io.springfox:springfox-swagger2:2.9.2")
 
 	runtimeOnly("io.springfox:springfox-swagger-ui:2.9.2")
+	runtimeOnly("org.springframework:spring-context-support")
 }
 
 tasks.withType<Test> {
