@@ -9,8 +9,9 @@ class AuthClientImpl(private val restTemplate: RestTemplate, private val baseUrl
 
     override fun validate(email: String, token: String): Boolean{
         val url = UriComponentsBuilder.fromHttpUrl(baseUrl).path("/api/auth/validate")
-                .queryParam("email", email).queryParam("accessToken", token).build().toUri()
+                .build().toUri()
 
-        return restTemplate.postForObject<Boolean>(url)
+        val requestBody = AuthenticationController.AccessTokenRequest(email, token);
+        return restTemplate.postForObject<Boolean>(url, requestBody)
     }
 }

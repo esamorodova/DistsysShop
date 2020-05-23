@@ -103,12 +103,7 @@ class AuthServiceImpl(val repository: UserEntityRepository, val emailSender: Sen
     @Transactional
     @Throws(Exception::class)
     override fun validate(email: String, token: String): Boolean {
-        val user = repository.findByIdOrNull(email) /*?: return false
-        //println("correct token: " + user.accessToken + ", my token: " + token)
-        //println("email confirmed: " + user.emailConfirmed)
-        //println("tokens equal: " + user.accessToken == token)
-        //println("validate ans: " + !(!user.emailConfirmed || user.accessToken != token || user.accessTokenElapsedAt!!.isBefore(Instant.now())))
-        */
+        val user = repository.findByIdOrNull(email)
         return !(user == null || !user.emailConfirmed || user.accessToken != token || user.accessTokenElapsedAt!!.isBefore(Instant.now()))
     }
 

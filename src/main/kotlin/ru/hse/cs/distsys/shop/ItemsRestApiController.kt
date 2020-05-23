@@ -35,12 +35,12 @@ class ItemsRestApiController(val repository: ItemsRepository, val authService: A
     }
 
     @PostMapping
-    fun addNewItem(@RequestParam name: String, @RequestParam category: String,
+    fun addNewItem(@RequestBody item: Item,
                    @RequestHeader("authorization") token: String): Long {
         if (!checkToken(token)) {
             throw AuthorizationError("no access")
         }
-        return repository.addItem(name, category)
+        return repository.addItem(item.itemName, item.itemCategory)
     }
 
     @DeleteMapping("/{id}")
@@ -52,12 +52,12 @@ class ItemsRestApiController(val repository: ItemsRepository, val authService: A
     }
 
     @PutMapping("/{id}")
-    fun updateItem(@PathVariable id: Long, @RequestParam name: String, @RequestParam category: String,
+    fun updateItem(@PathVariable id: Long, @RequestBody item: Item,
                    @RequestHeader("authorization") token: String) {
         if (!checkToken(token)) {
             throw AuthorizationError("no access")
         }
-        val newItem = Item(id, name, category)
+        val newItem = Item(id, item.itemName, item.itemCategory)
         repository.updateItem(newItem)
     }
 

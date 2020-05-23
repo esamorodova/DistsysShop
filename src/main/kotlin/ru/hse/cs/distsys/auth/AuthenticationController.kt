@@ -7,30 +7,33 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/auth")
 @Profile("auth")
 class AuthenticationController(val authenticationService: AuthenticationService, val authorizationService: AuthorizationService) {
+    data class PasswordRequest(val email: String, val password: String)
+    data class RefreshTokenRequest(val email: String, val refreshToken: String);
+    data class AccessTokenRequest(val email: String, val accessToken: String);
 
     @PostMapping("/register")
-    fun register(@RequestParam email: String, @RequestBody password: String) {
-        authorizationService.register(email, password)
+    fun register(@RequestBody request: PasswordRequest) {
+        authorizationService.register(request.email, request.password)
     }
 
     @PostMapping("/login")
-    fun login(@RequestParam email: String, @RequestBody password: String) : AuthorizationService.Tokens {
-        return authorizationService.login(email, password)
+    fun login(@RequestBody request: PasswordRequest) : AuthorizationService.Tokens {
+        return authorizationService.login(request.email, request.password)
     }
 
     @PostMapping("/logout")
-    fun logout(@RequestParam email: String, @RequestParam refreshToken: String) {
-        authorizationService.logout(email, refreshToken)
+    fun logout(@RequestBody request: RefreshTokenRequest) {
+        authorizationService.logout(request.email, request.refreshToken)
     }
 
     @PostMapping("/refresh")
-    fun refresh(@RequestParam email: String, @RequestParam refreshToken: String) : AuthorizationService.Tokens {
-        return authorizationService.refresh(email, refreshToken)
+    fun refresh(@RequestBody request: RefreshTokenRequest) : AuthorizationService.Tokens {
+        return authorizationService.refresh(request.email, request.refreshToken)
     }
 
     @PostMapping("/validate")
-    fun validate(@RequestParam email: String, @RequestParam accessToken: String): Boolean {
-        return authenticationService.validate(email, accessToken)
+    fun validate(@RequestBody request: AccessTokenRequest): Boolean {
+        return authenticationService.validate(request.email, request.accessToken)
     }
 
     @GetMapping("/confirm")

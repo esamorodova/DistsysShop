@@ -12,7 +12,6 @@ import java.lang.Exception
 class JPAItemsRepository(private val itemsRepository: ItemEntityRepository) : ItemsRepository {
     private fun ItemEntity.toItem() = Item(id!!, name, category)
     private fun Item.toEntity() = ItemEntity(itemId, itemName, itemCategory)
-    //private val pageSize = 30
 
     @Transactional
     @Throws(Exception::class)
@@ -45,7 +44,7 @@ class JPAItemsRepository(private val itemsRepository: ItemEntityRepository) : It
     @Transactional
     @Throws(Exception::class)
     override fun getItemsList(page: Int, length: Int): List<Item> {
-        return itemsRepository.findAll(PageRequest.of(page, length)).map { it.toItem()}.toList()
+        return itemsRepository.findAll(PageRequest.of(page, length)).map { it.toItem() }.toList()
     }
 
     @Transactional
